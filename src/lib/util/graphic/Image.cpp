@@ -19,6 +19,7 @@
 
 #include "lib/util/graphic/Color.h"
 
+
 namespace Util::Graphic {
 
 Image::Image(uint16_t width, uint16_t height, Color *pixelBuffer) : width(width), height(height), pixelBuffer(pixelBuffer) {
@@ -41,8 +42,8 @@ uint16_t Image::getHeight() const {
     return height;
 }
 
-Image* Image::scale(uint16_t newWidth, uint16_t newHeight) {
-    auto *newPixelBuffer = new Graphic::Color[newWidth * newHeight];
+Image* Image::scale(uint16_t newWidth, uint16_t newHeight){
+    auto *newPixelBuffer = new Graphic::Color[newWidth*newHeight];
     double factorX = static_cast<double>(newWidth) / width;
     double factorY = static_cast<double>(newHeight) / height;
 
@@ -56,5 +57,42 @@ Image* Image::scale(uint16_t newWidth, uint16_t newHeight) {
 
     return new Image(newWidth, newHeight, newPixelBuffer);
 }
+
+
+ /*   Image* Image::rotate(int angle) {
+        auto *newPixelBuffer = new Graphic::Color[width * height];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                newPixelBuffer[width * y + x] = pixelBuffer[width];
+            }
+        }
+*//*
+        double nx_x = rot_x(-angle, 1.0, 0.0);
+        double nx_y = rot_x(-angle, 1.0, 0.0);
+        double ny_x = rot_x(-angle, 0.0, 1.0);
+        double ny_y = rot_x(-angle, 0.0, 1.0);
+
+        double x0 = rot_x(-angle, getWidth() / 2.0, -height / 2.0) + width /2.0;
+        double y0 = rot_y(-angle, getWidth() / 2.0, -height / 2.0) + height /2.0;
+
+        for(int y = 0; y<height; y++){
+            double x1 = x0;
+            double y1 = y0;
+            for(int x = 0; x < width; x++){
+                int xx = (int) y1;
+                int yy = (int) y1;
+                newPixelBuffer[x + y * width] = pixelBuffer[xx + yy + width];
+                x1 += nx_x;
+                y1 += nx_y;
+            }
+
+        }*//*
+        return nullptr;
+    }*/
+
+
+
+
+
 
 }

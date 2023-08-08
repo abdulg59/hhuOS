@@ -29,80 +29,91 @@
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
+#include "lib/util/game/particleSystem/ParticleSystem.h"
 
 namespace Util {
-namespace Game {
-class Graphics2D;
-class KeyListener;
-class MouseListener;
-}  // namespace Game
+    namespace Game {
+        class Graphics2D;
+        class KeyListener;
+        class MouseListener;
+    }  // namespace Game
 }  // namespace Util
 
 namespace Util::Game {
 
-class Scene {
+    class Scene {
 
-friend class Engine;
+        friend class Engine;
 
-public:
-    /**
-     * Default Constructor.
-     */
-    Scene() = default;
+    public:
+        /**
+         * Default Constructor.
+         */
+        Scene() = default;
 
-    /**
-     * Copy Constructor.
-     */
-    Scene(const Scene &other) = delete;
+        /**
+         * Copy Constructor.
+         */
+        Scene(const Scene &other) = delete;
 
-    /**
-     * Assignment operator.
-     */
-    Scene &operator=(const Scene &other) = delete;
+        /**
+         * Assignment operator.
+         */
+        Scene &operator=(const Scene &other) = delete;
 
-    /**
-     * Destructor.
-     */
-    virtual ~Scene();
+        /**
+         * Destructor.
+         */
+        virtual ~Scene();
 
-    void initialize(Graphics2D &graphics);
+        void initialize(Graphics2D &graphics);
 
-    [[nodiscard]] uint32_t getObjectCount() const;
+        [[nodiscard]] uint32_t getObjectCount() const;
 
-    [[nodiscard]] Camera& getCamera();
+        [[nodiscard]] Camera& getCamera();
 
-    void applyChanges();
+        void applyChanges();
 
-    void updateEntities(double delta);
+        void updateParticleSystems(double delta);
 
-    void draw(Graphics2D &graphics);
+        void updateEntities(double delta);
 
-    virtual void update(double delta) = 0;
+        void draw(Graphics2D &graphics);
 
-    virtual void initializeBackground(Graphics2D &graphics) = 0;
+        virtual void update(double delta) = 0;
 
-protected:
+        virtual void initializeBackground(Graphics2D &graphics) = 0;
 
-    void addObject(Entity *object);
+        void addParticleSystem(ParticleSystem *particleSystem);
 
-    void removeObject(Entity *object);
 
-    void setKeyListener(KeyListener &listener);
+    protected:
 
-    void setMouseListener(MouseListener &listener);
+        void addObject(Entity *object);
 
-private:
+        void removeObject(Entity *object);
 
-    void checkCollisions();
+        void setKeyListener(KeyListener &listener);
 
-    KeyListener *keyListener = nullptr;
-    MouseListener *mouseListener = nullptr;
+        void setMouseListener(MouseListener &listener);
 
-    Camera camera;
-    ArrayList<Entity*> entities;
-    ArrayList<Entity*> addList;
-    ArrayList<Entity*> removeList;
-};
+    private:
+
+        void checkCollisions();
+
+        KeyListener *keyListener = nullptr;
+        MouseListener *mouseListener = nullptr;
+
+        Camera camera;
+        ArrayList<Entity*> entities;
+        ArrayList<ParticleSystem*> particleSystems;
+        ArrayList<Entity*> addList;
+        ArrayList<Entity*> removeList;
+        ArrayList<ParticleSystem*> psystemAddList;
+        ArrayList<ParticleSystem*> psystemRemoveList;
+
+        void deleteParticleSystem(ParticleSystem *particleSystem);
+    };
 
 }
 

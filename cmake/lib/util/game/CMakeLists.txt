@@ -46,6 +46,8 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Scene.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Sprite.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/particleSystem/ParticleSystem.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/particleSystem/Particle.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Text.cpp)
 
 # Kernel space version

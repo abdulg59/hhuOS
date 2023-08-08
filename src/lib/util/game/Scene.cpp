@@ -26,110 +26,142 @@
 #include "lib/util/game/entity/collider/RectangleCollider.h"
 
 namespace Util {
-namespace Game {
-class Camera;
-class KeyListener;
-class MouseListener;
-}  // namespace Game
+    namespace Game {
+        class Camera;
+        class KeyListener;
+        class MouseListener;
+    }  // namespace Game
 }  // namespace Util
 
 namespace Util::Game {
 
-Scene::~Scene() {
-    applyChanges();
+    Scene::~Scene() {
+        applyChanges();
 
-    for (const auto *entity : entities) {
-        delete entity;
+        for (const auto *entity : entities) {
+            delete entity;
+        }
+
+        entities.clear();
     }
 
-    entities.clear();
-}
+    void Scene::initialize(Graphics2D &graphics) {
+        initializeBackground(graphics);
+        graphics.saveCurrentStateAsBackground();
 
-void Scene::initialize(Graphics2D &graphics) {
-    initializeBackground(graphics);
-    graphics.saveCurrentStateAsBackground();
+        for (auto *entity : entities) {
+            entity->initialize();
+        }
 
-    for (auto *entity : entities) {
-        entity->initialize();
-    }
-}
-
-void Scene::addObject(Entity *object) {
-    addList.add(object);
-}
-
-void Scene::removeObject(Entity *object) {
-    removeList.add(object);
-}
-
-void Scene::applyChanges() {
-    for (auto *entity : addList) {
-        entity->initialize();
-        entities.add(entity);
     }
 
-    for (auto *object : removeList) {
-        entities.remove(object);
-        delete object;
+    void Scene::addObject(Entity *object) {
+        addList.add(object);
     }
 
-    addList.clear();
-    removeList.clear();
-}
-
-void Scene::updateEntities(double delta) {
-    for (auto *entity : entities) {
-        entity->update(delta);
+    void Scene::removeObject(Entity *object) {
+        removeList.add(object);
     }
-}
 
-void Scene::draw(Graphics2D &graphics) {
-    for (auto *object : entities) {
-        object->draw(graphics);
+    void Scene::addParticleSystem(ParticleSystem *particleSystem){
+        psystemAddList.add(particleSystem);
     }
-}
 
-uint32_t Scene::getObjectCount() const {
-    return entities.size();
-}
+    void Scene::deleteParticleSystem(ParticleSystem *particleSystem){
+        psystemRemoveList.add(particleSystem);
+    }
 
-void Scene::setKeyListener(KeyListener &listener) {
-    keyListener = &listener;
-}
+    void Scene::applyChanges() {
+        for (auto *entity : addList) {
+            entity->initialize();
+            entities.add(entity);
+        }
 
-void Scene::setMouseListener(MouseListener &listener) {
-    mouseListener = &listener;
-}
+        for (auto *particleSystem : psystemAddList) {
+            particleSystems.add(particleSystem);
+        }
 
-Camera& Scene::getCamera() {
-    return camera;
-}
+        for (auto *object : removeList) {
+            entities.remove(object);
+            delete object;
+        }
 
-void Scene::checkCollisions() {
-    auto detectedCollisions = ArrayList<Pair<Entity*, Entity*>>();
-    for (auto *entity : entities) {
-        if (entity->hasCollider() && entity->positionChanged) {
-            const auto &collider = entity->getCollider();
+        for (auto *object : psystemRemoveList) {
+            particleSystems.remove(object);
+            delete object;
+        }
 
-            for (auto *otherEntity : entities) {
-                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity))) {
-                    continue;
-                }
+        addList.clear();
+        psystemAddList.clear();
+        removeList.clear();
+        psystemRemoveList.clear();
 
-                const auto &otherCollider = otherEntity->getCollider();
-                auto side = collider.isColliding(otherCollider);
+    }
 
-                if (side != RectangleCollider::NONE) {
-                    auto event = CollisionEvent(*otherEntity, side);
-                    auto otherEvent = CollisionEvent(*entity, RectangleCollider::getOpposite(side));
+    void Scene::updateEntities(double delta) {
+        for (auto *entity : entities) {
+            entity->update(delta);
+        }
+    }
 
-                    entity->onCollision(event);
-                    otherEntity->onCollision(otherEvent);
-                    detectedCollisions.add(Pair(entity, otherEntity));
+    void Scene::updateParticleSystems(double delta){
+        for (auto *particleSystem : particleSystems){
+            particleSystem->update(delta);
+        }
+    }
+
+    void Scene::draw(Graphics2D &graphics) {
+        for(auto *object : particleSystems){
+            object->drawParticles(graphics);
+        }
+
+        for (auto *object : entities) {
+            object->draw(graphics);
+        }
+
+    }
+
+    uint32_t Scene::getObjectCount() const {
+        return entities.size();
+    }
+
+    void Scene::setKeyListener(KeyListener &listener) {
+        keyListener = &listener;
+    }
+
+    void Scene::setMouseListener(MouseListener &listener) {
+        mouseListener = &listener;
+    }
+
+    Camera& Scene::getCamera() {
+        return camera;
+    }
+
+    void Scene::checkCollisions() {
+        auto detectedCollisions = ArrayList<Pair<Entity*, Entity*>>();
+        for (auto *entity : entities) {
+            if (entity->hasCollider() && entity->positionChanged) {
+                const auto &collider = entity->getCollider();
+
+                for (auto *otherEntity : entities) {
+                    if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity))) {
+                        continue;
+                    }
+
+                    const auto &otherCollider = otherEntity->getCollider();
+                    auto side = collider.isColliding(otherCollider);
+
+                    if (side != RectangleCollider::NONE) {
+                        auto event = CollisionEvent(*otherEntity, side);
+                        auto otherEvent = CollisionEvent(*entity, RectangleCollider::getOpposite(side));
+
+                        entity->onCollision(event);
+                        otherEntity->onCollision(otherEvent);
+                        detectedCollisions.add(Pair(entity, otherEntity));
+                    }
                 }
             }
         }
     }
-}
 
 }

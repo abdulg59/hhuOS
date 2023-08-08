@@ -75,6 +75,7 @@ void Engine::run() {
         auto &scene = game.getCurrentScene();
         scene.update(frameTime);
         scene.updateEntities(frameTime);
+        scene.updateParticleSystems(frameTime);
         scene.checkCollisions();
         scene.applyChanges();
         updateStatus();

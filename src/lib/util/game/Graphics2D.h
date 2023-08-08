@@ -105,7 +105,12 @@ public:
 
     [[nodiscard]] Math::Vector2D getAbsoluteResolution() const;
 
+    void drawImageInColor(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, Graphic::Color color) const;
+
+    void drawImageScaled(const Math::Vector2D &position, const Graphic::Image &image, bool flipX,
+                         Graphic::Color color, double newWidth, double newHeight) const;
 private:
+    void scalePixelBuffer(Util::Graphic::Color *oldPixelBuffer, Util::Graphic::Color *newPixelBuffer, int oldWidth, int oldHeight, int newWidth, int newHeight) const;
 
     void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
@@ -123,6 +128,7 @@ private:
     uint8_t *backgroundBuffer = nullptr;
 
     Graphic::Color color = Graphic::Colors::WHITE;
+
 };
 
 }

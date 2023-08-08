@@ -27,6 +27,10 @@
 #include "lib/util/graphic/Image.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/game/Scene.h"
+#include "lib/util/math/Math.h"
+#include "GameManager.h"
+#include "lib/util/graphic/Color.h"
+
 
 namespace Util {
 namespace Graphic {
@@ -97,6 +101,78 @@ void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image 
         }
     }
 }
+
+    void Graphics2D::drawImageInColor(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, Util::Graphic::Color color) const {
+        auto &camera = game.getCurrentScene().getCamera().getPosition();
+        auto pixelBuffer = image.getPixelBuffer();
+        auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
+        auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX);
+        auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY);
+
+        if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > lfb.getResolutionX() ||
+            yPixelOffset - image.getHeight() > lfb.getResolutionY() || yPixelOffset < 0) {
+            return;
+        }
+
+        for (int32_t i = 0; i < image.getHeight(); i++) {
+            for (int32_t j = 0; j < image.getWidth(); j++) {
+                if(pixelBuffer[i * image.getWidth() + j].getAlpha() != 0){
+                    pixelDrawer.drawPixel(xPixelOffset + xFlipOffset + (flipX ? -1 : 1) * j, yPixelOffset - i, color);
+                }
+            }
+        }
+    }
+
+    void Graphics2D::drawImageScaled(const Math::Vector2D &position, const Graphic::Image &image, bool flipX, Util::Graphic::Color color, double newWWidth, double newHHeight) const {
+        uint32_t newWidth = static_cast<uint32_t>(newWWidth * transformation) + 1;
+        uint32_t newHeight = static_cast<uint32_t>(newHHeight * transformation) + 1;
+
+        if(newWidth == 0 || newHeight == 0)
+            return;
+        // Check if Graphic to be drawn is actually in view
+        auto &camera = game.getCurrentScene().getCamera().getPosition();
+        auto pixelBuffer = image.getPixelBuffer();
+        auto xFlipOffset = flipX ? newWidth - 1 : 0;
+        auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX);
+        auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY);
+
+        if (xPixelOffset + newHeight < 0 || xPixelOffset > lfb.getResolutionX() ||
+            yPixelOffset - newWidth > lfb.getResolutionY() || yPixelOffset < 0) {
+            return;
+        }
+
+        auto *newPixelBuffer = new Graphic::Color[newWidth*newHeight];
+        scalePixelBuffer(image.getPixelBuffer(), newPixelBuffer, image.getWidth(), image.getHeight(), newWidth, newHeight);
+
+        for (uint32_t i = 0; i < newHeight; i++) {
+            for (uint32_t j = 0; j < newWidth; j++) {
+                if (pixelBuffer[i * newWidth + j].getAlpha() != 0) {
+                    pixelDrawer.drawPixel(xPixelOffset + xFlipOffset + (flipX ? -1 : 1) * j, yPixelOffset - i,
+                                          newPixelBuffer[newWidth * i + j]);
+                }
+            }
+        }
+
+        delete[] newPixelBuffer;
+    }
+/*    new_width=|old_width×cosθ|+|old_height×sinθ|
+    new_height=|old_height×cosθ|+ |old_row×sinθ|*/
+
+
+
+    void Graphics2D::scalePixelBuffer(Util::Graphic::Color *oldPixelBuffer, Util::Graphic::Color *newPixelBuffer, int oldWidth, int oldHeight, int newWidth, int newHeight) const {
+        double factorX = static_cast<double>(newWidth) / oldWidth;
+        double factorY = static_cast<double>(newHeight) / oldHeight;
+
+        for (int y = 0; y < newHeight; y++) {
+            for (int x = 0; x < newWidth; x++) {
+                auto oldX = static_cast<uint16_t>(x / factorX);
+                auto oldY = static_cast<uint16_t>(y / factorY);
+                newPixelBuffer[newWidth * y + x] = oldPixelBuffer[oldWidth * oldY + oldX];
+            }
+        }
+    }
+
 
 void Graphics2D::show() const {
     lfb.flush();
@@ -184,5 +260,6 @@ void Graphics2D::fillRectangle(const Math::Vector2D &position, double width, dou
         lineDrawer.drawLine(startX, i, endX, i, color);
     }
 }
+
 
 }

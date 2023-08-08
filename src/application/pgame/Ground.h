@@ -15,63 +15,64 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IMAGE_H
-#define HHUOS_IMAGE_H
+#ifndef HHUOS_GROUND_H
+#define HHUOS_GROUND_H
 
 #include <cstdint>
-#include "lib/util/math/Math.h"
+
+#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/Sprite.h"
 
 namespace Util {
-namespace Graphic {
-class Color;
-}  // namespace Graphic
+    namespace Game {
+        class CollisionEvent;
+        class Graphics2D;
+        class TranslationEvent;
+    }  // namespace Game
+    namespace Math {
+        class Vector2D;
+    }  // namespace Math
 }  // namespace Util
 
-namespace Util::Graphic {
-
-class Image {
+class Ground : public Util::Game::Entity {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Image(uint16_t width, uint16_t height, Color *pixelBuffer);
+    explicit Ground(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    Image(const Image &other) = delete;
+    Ground(const Ground &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Image &operator=(const Image &other) = delete;
+    Ground &operator=(const Ground &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Image();
+    ~Ground() override = default;
 
-    [[nodiscard]] Graphic::Color *getPixelBuffer() const;
+    void initialize() override;
 
+    void onUpdate(double delta) override;
 
-    [[nodiscard]] uint16_t getWidth() const;
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
-    [[nodiscard]] uint16_t getHeight() const;
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
 
-    [[nodiscard]] Image* scale(uint16_t newWidth, uint16_t newHeight);
+    void draw(Util::Game::Graphics2D &graphics) override;
 
-    [[nodiscard]] Image* rotate(int angle);
-
+    static const constexpr uint32_t TAG = 1;
 
 private:
 
-    const uint16_t width;
-    const uint16_t height;
-    Graphic::Color *pixelBuffer;
-
+    Util::Game::Sprite sprite;
 };
 
-}
 
 #endif
