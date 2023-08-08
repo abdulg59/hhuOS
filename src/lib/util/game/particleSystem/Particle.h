@@ -27,7 +27,17 @@ namespace Util::Game {
 
         bool isActive();
 
-        void update(double delta);
+        int getTTL();
+
+        void setTTL(int newTTL);
+
+        Math::Vector2D getAcceleration();
+        Math::Vector2D getVelocity();
+
+        Math::Vector2D getPosition();
+        void setPosition(Math::Vector2D newPos);
+
+        void setVelocity(Math::Vector2D newVelocity);
 
     private:
         double scale = 1;

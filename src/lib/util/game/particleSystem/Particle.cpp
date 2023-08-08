@@ -11,21 +11,6 @@ namespace Util::Game {
     Particle::Particle(){};
 
 
-    void Particle::update(double delta) {
-        scale -= 0.005;
-/*
-        startAlpha -= 1;
-*/
-        TTL -= 1;
-
-        if(TTL <= 0 || startAlpha<=0){
-            return;
-        }else{
-            velocity = velocity+acceleration*delta;
-            position = position + velocity;
-        }
-    }
-
     void Particle::draw(Util::Game::Graphics2D &graphics) {
         if(scale != 1) {
             graphics.drawImageScaled(position, sprite.getImage(), false, currentColor,
@@ -62,6 +47,34 @@ namespace Util::Game {
         this->velocity = velocity;
         TTL = totalTTL;
         this->sprite = sprite;
+    }
+
+    int Particle::getTTL() {
+        return TTL;
+    }
+
+    void Particle::setTTL(int newTTL) {
+        TTL = newTTL;
+    }
+
+    Math::Vector2D Particle::getAcceleration() {
+        return acceleration;
+    }
+
+    Math::Vector2D Particle::getVelocity(){
+        return velocity;
+    }
+
+    void Particle::setVelocity(Math::Vector2D newVelocity){
+        velocity = newVelocity;
+    }
+
+    Math::Vector2D Particle::getPosition() {
+        return position;
+    }
+
+    void Particle::setPosition(Math::Vector2D newPos) {
+        position = newPos;
     }
 
 

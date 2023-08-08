@@ -26,15 +26,14 @@ namespace Util::Game {
 
         virtual void updateParticleSystem(double delta) = 0;
 
+        virtual void updateParticle(double delta, Particle* particle);
+
 /*
         void updateSystem(Math::Vector2D pos, Math::Vector2D velo, Math::Vector2D ace);
 */
 
     private:
         void generateParticle();
-
-
-
 
         /**
          * Attributes of the particle system

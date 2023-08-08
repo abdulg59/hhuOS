@@ -18,8 +18,6 @@ private:
     Util::Math::Random random;
     double rectangleWidth;
     double rectangleHeight;
-    Util::Math::Vector2D center;
-    double dmod(double x, double y);
 };
 
 

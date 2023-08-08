@@ -35,6 +35,20 @@ namespace Util::Game {
 
     }
 
+    void ParticleSystem::updateParticle(double delta, Particle *particle) {
+        int curentTTL = particle->getTTL();
+        particle->setTTL(curentTTL-1);
+
+        Math::Vector2D currentVelocity = particle->getVelocity();
+        Math::Vector2D currentAcceleration = particle->getAcceleration();
+        Math::Vector2D currentPosition = particle->getPosition();
+
+        Math::Vector2D newVelocity = velocity+ (currentAcceleration*delta);
+        particle->setVelocity(newVelocity);
+        particle->setPosition(currentPosition+velocity);
+    }
+
+
     /**
     * initialize a Particle
     */
@@ -72,7 +86,7 @@ namespace Util::Game {
 
         for(int i = 0; i<numberOfParticles; i++){
             if(particles[i].isActive()){
-               particles[i].update(delta);
+                updateParticle(delta, &particles[i]);
             }else{
                 if(!freeParticles.contains(&particles[i])){
                     freeParticles.add(&particles[i]);
@@ -82,11 +96,12 @@ namespace Util::Game {
 
     }
 
- /*   void ParticleSystem::updateSystem(Math::Vector2D pos, Math::Vector2D velo, Math::Vector2D ace) {
-        position = pos;
-        velocity = velo;
-        acceleration = ace;
-    }*/
+
+    /*   void ParticleSystem::updateSystem(Math::Vector2D pos, Math::Vector2D velo, Math::Vector2D ace) {
+           position = pos;
+           velocity = velo;
+           acceleration = ace;
+       }*/
 
 
 }
