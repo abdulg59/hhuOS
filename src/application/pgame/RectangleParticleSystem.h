@@ -18,6 +18,8 @@ private:
     Util::Math::Random random;
     double rectangleWidth;
     double rectangleHeight;
+    void updateParticle(double delta, Particle *particle) override;
+    int time = 0;
 };
 
 

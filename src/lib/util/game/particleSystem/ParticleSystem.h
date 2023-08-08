@@ -5,10 +5,22 @@
 #ifndef HHUOS_PARTICLESYSTEM_H
 #define HHUOS_PARTICLESYSTEM_H
 
-#include "Particle.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/Graphics2D.h"
 
+
+struct Particle
+{
+    int ttl;
+    bool isActive;
+    Util::Math::Vector2D position;
+    Util::Math::Vector2D velocity;
+    Util::Math::Vector2D acceleration;
+    Util::Graphic::Color color;
+    int alpha;
+    double scale;
+};
 
 
 namespace Util::Game {
@@ -16,6 +28,8 @@ namespace Util::Game {
 
     public:
         /*   ParticleSystem(const Math::Vector2D &position, const Math::Vector2D &velocity, int numberOfParticles);*/
+        virtual ~ParticleSystem() = default;
+
         ParticleSystem();
 
         ParticleSystem(int emissionRate, int ttl, Util::Game::Sprite sprite);
@@ -26,7 +40,7 @@ namespace Util::Game {
 
         virtual void updateParticleSystem(double delta) = 0;
 
-        virtual void updateParticle(double delta, Particle* particle);
+        virtual void updateParticle(double delta, Particle *particle);
 
 /*
         void updateSystem(Math::Vector2D pos, Math::Vector2D velo, Math::Vector2D ace);
@@ -48,6 +62,8 @@ namespace Util::Game {
         int time;
 
     protected:
+        void initializeParticle(Particle *particle, Math::Vector2D position, Math::Vector2D velocity, Math::Vector2D acceleration, int ttl, int alpha, Graphic::Color color, double scale);
+
         Util::Game::Sprite sprite{};
         /**
   * Attributes of individual particles
@@ -67,7 +83,8 @@ namespace Util::Game {
         int alphaEnd;
         int numberOfParticles;
         // current position of the particle system
-        Math::Vector2D position{};
+        Math::Vector2D systemPosition{};
+        double startscale;
     };
 }
 #endif //HHUOS_PARTICLESYSTEM_H

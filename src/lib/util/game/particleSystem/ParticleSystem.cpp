@@ -16,10 +16,9 @@ namespace Util::Game {
     * Constructor creates pool for Particles and initializes the s
     */
 
-    ParticleSystem::ParticleSystem(int emissionrate, int ttl, Util::Game::Sprite sprite){
-        velocity = Math::Vector2D(0.001,0.001);
-        acceleration = Math::Vector2D(0.001,0.001);
 
+
+    ParticleSystem::ParticleSystem(int emissionrate, int ttl, Util::Game::Sprite sprite){
         this->ttl = ttl;
         this->emissionRate = emissionrate;
         time= emissionrate;
@@ -36,16 +35,19 @@ namespace Util::Game {
     }
 
     void ParticleSystem::updateParticle(double delta, Particle *particle) {
-        int curentTTL = particle->getTTL();
-        particle->setTTL(curentTTL-1);
+        particle->ttl = (particle->ttl) - 1;
+        if (particle->ttl <= 0){
+            particle->isActive = false;
+            return;
+        }
 
-        Math::Vector2D currentVelocity = particle->getVelocity();
-        Math::Vector2D currentAcceleration = particle->getAcceleration();
-        Math::Vector2D currentPosition = particle->getPosition();
+        Math::Vector2D currentVelocity = particle->velocity;
+        Math::Vector2D currentAcceleration = particle->acceleration;
+        Math::Vector2D currentPosition = particle->position;
 
-        Math::Vector2D newVelocity = velocity+ (currentAcceleration*delta);
-        particle->setVelocity(newVelocity);
-        particle->setPosition(currentPosition+velocity);
+        Math::Vector2D newVelocity = currentVelocity;
+        particle->velocity = newVelocity;
+        particle->position = currentPosition+newVelocity;
     }
 
 
@@ -54,9 +56,8 @@ namespace Util::Game {
     */
     void ParticleSystem::generateParticle(){
         Particle *part = freeParticles.get(0);
-        part->initializeParticle(particlePosition, velocity, acceleration, ttl, sprite);
+        initializeParticle(part, particlePosition, velocity, acceleration, ttl, alphaStart, startColor, startscale);
         freeParticles.removeIndex(0);
-
     }
 
 
@@ -65,8 +66,8 @@ namespace Util::Game {
     */
     void ParticleSystem::drawParticles(Graphics2D &graphics) {
         for(int i = 0; i< numberOfParticles; i++){
-            if(particles[i].isActive()) {
-                particles[i].draw(graphics);
+            if(particles[i].isActive) {
+                graphics.drawImageInColor(particles[i].position, sprite.getImage(), false, particles[i].color);
             }
         }
     }
@@ -85,7 +86,7 @@ namespace Util::Game {
         }
 
         for(int i = 0; i<numberOfParticles; i++){
-            if(particles[i].isActive()){
+            if(particles[i].isActive){
                 updateParticle(delta, &particles[i]);
             }else{
                 if(!freeParticles.contains(&particles[i])){
@@ -96,12 +97,17 @@ namespace Util::Game {
 
     }
 
-
-    /*   void ParticleSystem::updateSystem(Math::Vector2D pos, Math::Vector2D velo, Math::Vector2D ace) {
-           position = pos;
-           velocity = velo;
-           acceleration = ace;
-       }*/
+    void ParticleSystem::initializeParticle(Particle *particle,Math::Vector2D position, Math::Vector2D velocity, Math::Vector2D acceleration,
+                                       int ttl, int alpha, Graphic::Color color, double scale) {
+        particle->isActive = true;
+        particle->position = position;
+        particle->velocity = velocity;
+        particle->acceleration = acceleration;
+        particle->ttl = ttl;
+        particle->alpha = alpha;
+        particle->scale = scale;
+        particle->color = color;
+    }
 
 
 }
